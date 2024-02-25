@@ -1,0 +1,51 @@
+version: "3"
+services:
+  # ALBの代替コンテナ
+  mock-lb:
+    build: ./mock-lb
+    image: mock-lb
+    container_name: mock-lb
+    ports:
+      - 443:443
+    depends_on:
+      - wp-apache
+    environment:
+      TARGET_SERVER: wp-apache
+    volumes:
+      - ./logs/lb:/var/log/nginx
+  wp-apache:
+    container_name: wp-apache
+    build: ./wp-apache
+    image: wp-apache
+    depends_on:
+      mock-db:
+        condition: service_healthy
+    environment:
+      WORDPRESS_DB_HOST: mock-db:3306
+      WORDPRESS_DB_USER: root
+      WORDPRESS_DB_PASSWORD: root
+      WORDPRESS_DB_NAME: wordpress
+    volumes:
+      - ./src/wp-content/themes/my-thema:/var/www/html/wp-content/themes/my-thema
+      - ./src/wp-content/plugins:/var/www/html/wp-content/plugins
+      - ./src/wp-content/uploads:/var/www/html/wp-content/uploads
+      - ./logs/httpd:/var/log/apache2
+  mock-db:
+    container_name: mock-db
+    build: ./mock-db
+    image: mock-db
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: wordpress
+    volumes:
+      - ./db/mysql_init:/docker-entrypoint-initdb.d
+      - ./logs/mysql:/var/log/mysql
+    # dbの起動確認
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD
+      interval: 5s
+      timeout: 3s
+      retries: 30
+      start_period: 10s

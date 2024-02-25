@@ -1,0 +1,16 @@
+environment     = "stag"
+aws-region      = "ap-northeast-1"
+domain-name     = "wexpress-test.bay-se.com"
+service-name = "wexpress"
+vpc-cider     = "10.0.1.0/24"
+pub-1c-cider  = "10.0.1.0/27"
+pub-1d-cider  = "10.0.1.32/27"
+pri-1c-cider  = "10.0.1.64/26"
+pri-1d-cider  = "10.0.1.128/26"
+db-1c-cider  = "10.0.1.192/27"
+db-1d-cider  = "10.0.1.224/27"
+aurora-count = 2
+aurora-min-capacity = 0.5
+aurora-max-capacity = 1
+db-user = "root"
+db-password = "samplesample"
